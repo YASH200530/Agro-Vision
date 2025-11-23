@@ -22,8 +22,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize model runner (loads model if available)
-runner = ModelRunner(model_path="../model/model.pt")  # relative to app folder
+# Initialize model runner
+# The runner expects the model to be in: 
+# AgroVision-Backend-Python/model/plant_disease_recog_model_pwp.keras (as a directory)
+runner = ModelRunner()
 
 class ImagePayload(BaseModel):
     image: str  # base64-encoded image string
@@ -34,12 +36,16 @@ async def predict_from_base64(payload: ImagePayload):
     Accepts JSON: { "image": "<base64 string>" }
     """
     try:
+        # Decode base64 string to bytes
         img_bytes = base64.b64decode(payload.image)
+        # Open image from bytes and convert to RGB
         img = Image.open(BytesIO(img_bytes)).convert("RGB")
+        
         result: PredictionResult = runner.predict(img)
         return {"prediction": result.label, "confidence": result.confidence, "extra": result.extra}
     except Exception as e:
         traceback.print_exc()
+        # Raise 500 status code for internal server errors
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/predict-file", summary="Predict from multipart/form-data")
@@ -48,8 +54,11 @@ async def predict_from_file(file: UploadFile = File(...)):
     Accepts multipart/form-data field 'file' (image file).
     """
     try:
+        # Read file contents asynchronously
         contents = await file.read()
+        # Open image from bytes and convert to RGB
         img = Image.open(BytesIO(contents)).convert("RGB")
+        
         result: PredictionResult = runner.predict(img)
         return {"prediction": result.label, "confidence": result.confidence, "extra": result.extra}
     except Exception as e:
@@ -61,4 +70,5 @@ def root():
     return {"status": "ok", "message": "AgroVision Python ML backend running"}
 
 if __name__ == "__main__":
+    # Runs the application on port 8000 with hot-reloading
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
