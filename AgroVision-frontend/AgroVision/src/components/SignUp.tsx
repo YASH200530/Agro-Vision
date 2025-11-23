@@ -1,34 +1,49 @@
-// components/SignUp.tsx
 import React, { useState } from "react";
-import { Eye, EyeOff, Loader2, Leaf, CheckCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2, Leaf, CheckCircle, AlertCircle } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import type { SupportedLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const { t, language, setLanguage } = useLanguage();
   const { signup, isLoading } = useAuth();
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: "", email: "", phone: "", password: "", language: language as SupportedLanguage,
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    language: language as SupportedLanguage,
   });
-  const [error, setError] = useState("");
+
+  // Local states
+  const [errorMessage, setErrorMessage] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    if (!formData.name || !formData.email || !formData.password) {
-      setError("Please fill in all required fields");
+    setErrorMessage(""); // Clear old errors immediately on submit
+
+    // Basic Validation
+    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
+      setErrorMessage("Please fill in all required fields");
       return;
     }
-    const ok = await signup(
-      formData.name, formData.email, formData.phone, formData.password
+
+    // Call Signup
+    const result = await signup(
+      formData.name,
+      formData.email,
+      formData.phone,
+      formData.password,
+      formData.language
     );
-    if (ok) {
+
+    if (result.success) {
       setLanguage(formData.language);
       setShowSuccess(true);
       setTimeout(() => {
@@ -36,8 +51,17 @@ export default function SignUp() {
         navigate("/");
       }, 1000);
     } else {
-      setError("Signup failed. Email may already be in use.");
+      // 1. We removed the alert() so the UI can update instantly.
+      // 2. We use the message from the backend.
+      alert(result.message || "Signup failed. Please try again.");
+      setErrorMessage(result.message || "Signup failed. Please try again.");
     }
+  };
+
+  const handleChange = (field: string, value: string) => {
+    // Optional: Uncomment the line below if you want errors to disappear when user fixes typos
+    // setErrorMessage(""); 
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -58,42 +82,71 @@ export default function SignUp() {
           {t("auth.signup.subtitle")}
         </p>
 
+        {/* ERROR MESSAGE DISPLAY */}
+        {/* Using AnimatePresence makes it pop in smoothly, ensuring user notices it */}
+        <AnimatePresence>
+          {errorMessage && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-center space-x-3"
+            >
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+              <span className="text-sm font-medium text-red-700 dark:text-red-200">
+                {errorMessage}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-6">
             <input
-              type="text" placeholder={t("auth.name")} required
+              type="text"
+              placeholder={t("auth.name")}
+              required
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-5 py-4 rounded-lg border dark:border-gray-600 dark:bg-gray-700"
+              onChange={(e) => handleChange("name", e.target.value)}
+              className="w-full px-5 py-4 rounded-lg border dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-agri-500 outline-none transition-all"
             />
             <input
-              type="email" placeholder={t("auth.email")} required
+              type="email"
+              placeholder={t("auth.email")}
+              required
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-5 py-4 rounded-lg border dark:border-gray-600 dark:bg-gray-700"
+              onChange={(e) => handleChange("email", e.target.value)}
+              className="w-full px-5 py-4 rounded-lg border dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-agri-500 outline-none transition-all"
             />
             <input
-              type="tel" placeholder={t("auth.phone")}
+              type="tel"
+              placeholder={t("auth.phone")}
+              required
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-5 py-4 rounded-lg border dark:border-gray-600 dark:bg-gray-700"
+              onChange={(e) => handleChange("phone", e.target.value)}
+              className="w-full px-5 py-4 rounded-lg border dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-agri-500 outline-none transition-all"
             />
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"} placeholder={t("auth.password")} required
+                type={showPassword ? "text" : "password"}
+                placeholder={t("auth.password")}
+                required
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-5 py-4 rounded-lg border dark:border-gray-600 dark:bg-gray-700"
+                onChange={(e) => handleChange("password", e.target.value)}
+                className="w-full px-5 py-4 rounded-lg border dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-agri-500 outline-none transition-all"
               />
-              <button type="button" onClick={() => setShowPassword((s) => !s)}
-                className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400">
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-gray-600"
+              >
                 {showPassword ? <EyeOff /> : <Eye />}
               </button>
             </div>
             <select
               value={formData.language}
-              onChange={(e) => setFormData({ ...formData, language: e.target.value as SupportedLanguage })}
-              className="w-full px-5 py-4 rounded-lg border dark:border-gray-600 dark:bg-gray-700"
+              onChange={(e) => handleChange("language", e.target.value)}
+              className="w-full px-5 py-4 rounded-lg border dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-agri-500 outline-none transition-all"
             >
               <option value="en">English</option>
               <option value="hi">हिन्दी</option>
@@ -106,7 +159,6 @@ export default function SignUp() {
             </select>
           </div>
 
-          {error && <div className="text-red-500 text-center font-medium">{error}</div>}
           {showSuccess && (
             <div className="text-agri-600 dark:text-agri-400 text-center font-bold flex items-center justify-center space-x-2">
               <CheckCircle className="w-5 h-5" />
@@ -117,7 +169,7 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-4 rounded-2xl text-white bg-agri-600 hover:bg-agri-700 font-bold"
+            className="w-full py-4 rounded-2xl text-white bg-agri-600 hover:bg-agri-700 font-bold transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isLoading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : t("auth.signup.button")}
           </button>
@@ -128,7 +180,7 @@ export default function SignUp() {
           <button
             type="button"
             onClick={() => navigate("/login")}
-            className="text-lg font-bold text-agri-600 dark:text-agri-400 underline"
+            className="text-lg font-bold text-agri-600 dark:text-agri-400 underline hover:text-agri-700 transition-colors"
           >
             {t("nav.login")}
           </button>

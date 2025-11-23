@@ -42,6 +42,7 @@ async def predict_from_base64(payload: ImagePayload):
         img = Image.open(BytesIO(img_bytes)).convert("RGB")
         
         result: PredictionResult = runner.predict(img)
+        print(result)
         return {"prediction": result.label, "confidence": result.confidence, "extra": result.extra}
     except Exception as e:
         traceback.print_exc()
@@ -60,6 +61,7 @@ async def predict_from_file(file: UploadFile = File(...)):
         img = Image.open(BytesIO(contents)).convert("RGB")
         
         result: PredictionResult = runner.predict(img)
+        print(result)
         return {"prediction": result.label, "confidence": result.confidence, "extra": result.extra}
     except Exception as e:
         traceback.print_exc()
