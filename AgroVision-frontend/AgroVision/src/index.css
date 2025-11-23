@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  font-family: theme('fontFamily.body');
+}
+
+h1, h2, h3, .font-display {
+  font-family: theme('fontFamily.display');
+}
+
+.bg-field-texture {
+  background-image: theme('backgroundImage.field-texture');
+}
+
+/* Disable transition-based hover effects globally (keeps interactions static)
+   Note: this is broad — adjust if you want hover transitions on specific elements. */
+* {
+  transition: none !important;
+}
+
+*:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+
+@layer base {
+  html.dark {
+    color-scheme: dark;
+  }
+
+  html.dark body {
+    background-color: #081224;
+    color: #e6eef6;
+  }
+
+  html.dark .bg-white\/90 { background-color: rgba(17,24,39,0.90) !important; }
+  html.dark .bg-white\/95 { background-color: rgba(17,24,39,0.95) !important; }
+  html.dark .bg-white\/80 { background-color: rgba(17,24,39,0.80) !important; }
+  html.dark .bg-gray-50\/80 { background-color: rgba(15,23,42,0.8) !important; }
+
+  html.dark .text-gray-900 { color: #e6eef6 !important; }
+  html.dark .text-gray-800 { color: #d6e6f6 !important; }
+
+  html.dark .border-gray-100 { border-color: rgba(255,255,255,0.06) !important; }
+  html.dark .border-gray-200 { border-color: rgba(255,255,255,0.04) !important; }
+  html.dark .bg-white { background-color: rgba(17,24,39,1) !important; }
+  html.dark .hover\:bg-gray-50:hover { background-color: rgba(255,255,255,0.02) !important; }
+}
+
+/* Remove hover/focus outlines, borders and shadows globally so hovering/focusing elements
+   won't produce lines or outlines. This affects keyboard focus visibility (accessibility).
+   If you want to preserve keyboard outlines, we can restrict these rules to pointer events only. */
+*,:before,:after {
+  outline: none !important;
+}
+
+*:focus, *:focus-visible, *:hover {
+  box-shadow: none !important;
+  outline: none !important;
+  border-color: inherit !important;
+  text-decoration: none !important;
+}
+
+div:hover, div:focus, button:hover, button:focus, a:hover, a:focus, input:hover, input:focus, select:hover, select:focus, textarea:hover, textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: inherit !important;
+}
