@@ -1,3 +1,3 @@
 ﻿# AgroVision
 
-<img width="1443" height="716" alt="Screenshot 2025-11-24 054235" src="https://github.com/user-attachments/assets/2c548d1c-eace-481e-bc33-d26a08d18fbd" />
+
