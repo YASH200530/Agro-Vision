@@ -4,6 +4,9 @@
 [![Language: TypeScript](https://img.shields.io/badge/language-TypeScript-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)]()
 [![Repo](https://img.shields.io/badge/github-YASH200530/Agro--Vision-181717?logo=github)]()
+[![React](https://img.shields.io/badge/React-17.0.2-61DAFB?logo=react&logoColor=white)]()
+[![Next.js](https://img.shields.io/badge/Next.js-13-black?logo=next.js&logoColor=white)]()
+[![MongoDB](https://img.shields.io/badge/MongoDB-5.0-47A248?logo=mongodb&logoColor=white)]()
 
 Agro-Vision is an open-source computer-vision platform for agricultural workflows — from dataset annotation and preprocessing to model training and inference. It provides a web interface for image review/annotation, backend APIs for managing datasets and inference jobs, and Python pipelines for model training and evaluation.
 
@@ -234,4 +237,5 @@ Planned improvements:
 ## License
 
 This project is licensed under the MIT License. See LICENSE for details.
+
 
